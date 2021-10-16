@@ -3,34 +3,161 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>test</title>
+	<title>台灣水庫水情</title>
+	<link rel="stylesheet" href="css/normalize.css">
 </head>
 <body>
-	<h1>測試</h1>
+	<div id="app" v-cloak>
+		<header>{{web_title}}</header>
+		<div class="wrap">
+			<div class="list">
+				<div class="item" v-for="reservoir in reservoirs" :key="reservoir[10]">
+					
+					<div class="chart">
+						<div class="chart-inner">
+							<div class="info" v-if="parseInt(reservoir[10])">{{parseInt(reservoir[10])}}<span>%</span></div>
+							<div class="info no-data" v-else>暫無資料</div>
+							<div class="chart-bg" :style="{'top': `calc(100% - ${parseInt(reservoir[10])}%)`}">
+								<!-- <div class="chart-bg-warning" :style="{'opacity': `calc((100 - ${parseInt(reservoir[10])}) / 175)`}"></div> -->
+							</div>
+						</div>
+					</div>
+					<div class="title">{{reservoir[0]}}</div>
+					<div class="small-info">{{reservoir[7]}}</div>
+				</div>
+			</div>
+		</div>
+		<footer>{{footer}}</footer>
+	</div>
+	<style>
+		[v-cloak] {
+			display: none;
+		}
+		*, *:before, *:after {
+			box-sizing: border-box;
+		}
+		.wrap {
+			max-width: 1024px;
+			padding: 10px;
+			margin: 0 auto;
+		}
+		.list {
+			display: flex;
+			flex-wrap: wrap;
+		}
+		.list .item {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin: 10px 10px 20px 10px;
+			flex: 1;
+		}
+		.list .item .title {
+			font-size: 20px;
+			font-weight: bolder;
+			margin-bottom: 5px;
+		}
+		.list .item .chart {
+			border-radius: 50%;
+			width: 125px;
+			height: 125px;
+			padding: 5px;
+			margin-bottom: 5px;
+			background: linear-gradient(to bottom, #7db9e8 0%,#1e5799 100%);
+		}
+		.list .item .chart .chart-inner {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+			padding: 10px;
+			position: relative;
+			overflow: hidden;
+			border-radius: 50%;
+			background-color: #fff;
+			border: 5px solid #fff;
+		}
+		.list .item .chart .chart-inner .info {
+			position: relative;
+			z-index: 1;
+			color: #b3deef;
+			font-size: 50px;
+			font-weight: bolder;
+		}
+		.list .item .chart .chart-inner span {
+			font-size: 14px;
+		}
+		.list .item .chart .chart-inner .info.no-data {
+			font-size: 14px;
+			color: #647689;
+			letter-spacing: 1px;
+		}
+		.list .item .chart .chart-inner .chart-bg {
+			position: absolute;
+			top: 100%;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(to bottom, #7db9e8 0%,#1e5799 100%);;
+			transition: 2.5s ease;
+		}
+		.list .item .chart .chart-inner .chart-bg .chart-bg-warning {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: red;
+			opacity: 0;
+			transition: 2.5s ease;
+		}
+		.list .item .small-info {
+			font-size: 12px;
+		}
 
-
-	<div id="viewer"></div>
-
-	<script
-	  src="https://code.jquery.com/jquery-3.6.0.min.js"
-	  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-	  crossorigin="anonymous"></script>
+		header, footer {
+			padding: 20px;
+			text-align: center;
+			background-color: #f5f5f5;
+			letter-spacing: 1px;
+		}
+		header {
+			font-size: 30px;
+			font-weight: bolder;
+		}
+		footer {
+			font-size: 12px;
+		}
+	</style>
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.23.0/axios.min.js"></script>
 	<script>
 		const id = '1kRJTTUNCcIAZUV-PBoxwE_hxAA11vxAuByFWkjsRLWI';
 		const key = 'AIzaSyDiSuN5WQ-E5JQxG-oCnqjOOWrP2hHA4Pw';
 		const sheet = 'reservoir';
 		var uri = 'https://sheets.googleapis.com/v4/spreadsheets/'+id+'/values/'+sheet+'?alt=json&key='+key
 
-
-		fetch(uri)
-		      .then(res => res.json())
-		      .then(res => {
-		        console.log(res)
-		      })
-
-
-
-
+		var app = new Vue({
+			el: '#app',
+			data () {
+		        return {
+		        	web_title: '台灣水庫水情',
+		        	footer: '資料來源：經濟部水利署',
+		        	reservoirs: []
+		        }
+		    },
+		    mounted () {
+		        axios
+		        .get(uri)
+		        .then(response => (
+		        	this.reservoirs = response.data.values,
+		        	this.reservoirs.splice(0,2),
+		        	this.reservoirs.pop()
+		        ))
+		    }
+		})
 	</script>
 </body>
 </html>
