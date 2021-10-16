@@ -7,5 +7,30 @@
 </head>
 <body>
 	<h1>測試</h1>
+
+
+	<div id="viewer"></div>
+
+	<script
+	  src="https://code.jquery.com/jquery-3.6.0.min.js"
+	  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+	  crossorigin="anonymous"></script>
+	<script>
+		const id = '1kRJTTUNCcIAZUV-PBoxwE_hxAA11vxAuByFWkjsRLWI';
+		const key = 'AIzaSyDiSuN5WQ-E5JQxG-oCnqjOOWrP2hHA4Pw';
+		const sheet = 'reservoir';
+		var uri = 'https://sheets.googleapis.com/v4/spreadsheets/'+id+'/values/'+sheet+'?alt=json&key='+key
+
+
+		fetch(uri)
+		      .then(res => res.json())
+		      .then(res => {
+		        console.log(res)
+		      })
+
+
+
+
+	</script>
 </body>
 </html>
