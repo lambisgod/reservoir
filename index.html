@@ -10,15 +10,15 @@
 	<div id="app" v-cloak>
 		<header>{{web_title}}</header>
 		<div class="wrap">
-			<div class="list">
+			<div class="loading" v-if="loading">資料讀取中...</div>
+			<div class="list" else>
 				<div class="item" v-for="reservoir in reservoirs" :key="reservoir[10]">
-					
 					<div class="chart">
 						<div class="chart-inner">
 							<div class="info" v-if="parseInt(reservoir[10])">{{parseInt(reservoir[10])}}<span>%</span></div>
 							<div class="info no-data" v-else>暫無資料</div>
 							<div class="chart-bg" :style="{'top': `calc(100% - ${parseInt(reservoir[10])}%)`}">
-								<!-- <div class="chart-bg-warning" :style="{'opacity': `calc((100 - ${parseInt(reservoir[10])}) / 175)`}"></div> -->
+								<div class="chart-bg-warning" :style="{'opacity': `calc((100 - ${parseInt(reservoir[10])}) / 175)`}"></div>
 							</div>
 						</div>
 					</div>
@@ -130,6 +130,14 @@
 		footer {
 			font-size: 12px;
 		}
+		.loading {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 75vh;
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
 	</style>
 	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.23.0/axios.min.js"></script>
@@ -141,22 +149,32 @@
 
 		var app = new Vue({
 			el: '#app',
-			data () {
-		        return {
-		        	web_title: '台灣水庫水情',
-		        	footer: '資料來源：經濟部水利署',
-		        	reservoirs: []
-		        }
-		    },
-		    mounted () {
-		        axios
-		        .get(uri)
-		        .then(response => (
-		        	this.reservoirs = response.data.values,
-		        	this.reservoirs.splice(0,2),
-		        	this.reservoirs.pop()
-		        ))
-		    }
+			data() {
+				return {
+					loading: true,
+					web_title: '台灣水庫水情',
+					footer: '資料來源：經濟部水利署',
+					timer:  null,
+					reloadTime: 3600,
+					reservoirs: []
+				}
+			},
+			created() {
+				this.getApi(),
+				this.timer = setInterval(() =>{
+					this.getApi()
+				},1000 * this.reloadTime)
+			},
+			methods: {
+				getApi() {
+					axios.get(uri).then(response => (
+						this.reservoirs = response.data.values,
+						this.reservoirs.splice(0,2),
+						this.reservoirs.pop(),
+						this.loading = false
+					))
+				}
+			}
 		})
 	</script>
 </body>
